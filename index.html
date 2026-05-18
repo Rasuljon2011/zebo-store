@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOGUE STORE — Одежда</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --charcoal: #1a1a1a;
+    --muted: #6b6b6b;
+    --accent: #c8a96e;
+    --accent-dark: #a07840;
+    --border: #ddd6c8;
+    --white: #ffffff;
+    --card-bg: #faf7f2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    overflow-x: hidden;
+  }
+
+  /* ── LOADER ── */
+  #loader {
+    position: fixed; inset: 0; background: var(--charcoal);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #loader.hidden { opacity: 0; visibility: hidden; }
+  .loader-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    color: var(--cream);
+    letter-spacing: 0.3em;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(245,240,232,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 clamp(1.5rem, 5vw, 4rem);
+    height: 70px;
+  }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 600;
+    letter-spacing: 0.15em; color: var(--charcoal);
+    text-decoration: none;
+  }
+  nav { display: flex; gap: 2rem; align-items: center; }
+  nav a {
+    font-size: 0.7rem; font-weight: 500;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--charcoal); }
+  .cart-btn {
+    background: none; border: none; cursor: pointer;
+    position: relative; padding: 4px;
+  }
+  .cart-icon { font-size: 1.3rem; }
+  .cart-count {
+    position: absolute; top: -4px; right: -6px;
+    background: var(--accent); color: white;
+    font-size: 0.6rem; font-weight: 600;
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: scale(0);
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .cart-count.show { opacity: 1; transform: scale(1); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 90vh; display: flex; align-items: center;
+    padding: clamp(2rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; right: -5%; top: 0; bottom: 0;
+    width: 55%; background: var(--charcoal);
+    clip-path: polygon(8% 0, 100% 0, 100% 100%, 0% 100%);
+    z-index: 0;
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 520px; }
+  .hero-tag {
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s 0.3s both;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 300; line-height: 1.05;
+    letter-spacing: -0.01em; margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s 0.5s both;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero p {
+    font-size: 0.85rem; color: var(--muted); line-height: 1.8;
+    max-width: 380px; margin-bottom: 2.5rem;
+    animation: fadeUp 0.8s 0.7s both;
+  }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; animation: fadeUp 0.8s 0.9s both; }
+  .btn-primary {
+    background: var(--accent); color: white;
+    border: none; padding: 0.9rem 2.2rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer;
+    transition: background 0.25s, transform 0.2s;
+  }
+  .btn-primary:hover { background: var(--accent-dark); transform: translateY(-2px); }
+  .btn-outline {
+    background: transparent; color: var(--charcoal);
+    border: 1px solid var(--charcoal); padding: 0.9rem 2.2rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer;
+    transition: all 0.25s;
+  }
+  .btn-outline:hover { background: var(--charcoal); color: white; }
+
+  .hero-visual {
+    position: absolute; right: 5%; top: 50%; transform: translateY(-50%);
+    z-index: 1; width: 42%; text-align: center;
+    animation: fadeIn 1.2s 0.5s both;
+  }
+  .hero-visual-box {
+    width: 100%; aspect-ratio: 3/4; max-height: 72vh;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .hero-visual-box::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 40%, rgba(200,169,110,0.15) 0%, transparent 60%);
+  }
+  .mannequin {
+    font-size: clamp(5rem, 12vw, 10rem);
+    filter: grayscale(0.3);
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .hero-badge {
+    position: absolute; bottom: -1rem; left: -1rem;
+    background: var(--accent); color: white;
+    padding: 1rem 1.2rem; text-align: center;
+    font-size: 0.65rem; letter-spacing: 0.1em;
+  }
+  .hero-badge strong { display: block; font-size: 1.4rem; font-family: 'Cormorant Garamond', serif; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    background: var(--charcoal); color: var(--cream);
+    padding: 0.9rem 0; overflow: hidden; white-space: nowrap;
+    border-top: 1px solid #333; border-bottom: 1px solid #333;
+  }
+  .marquee-inner {
+    display: inline-flex; gap: 3rem;
+    animation: marquee 20s linear infinite;
+  }
+  .marquee-item {
+    font-size: 0.65rem; letter-spacing: 0.2em;
+    text-transform: uppercase; display: flex; align-items: center; gap: 1.5rem;
+  }
+  .marquee-item::after { content: '✦'; color: var(--accent); }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* ── SECTION HEADERS ── */
+  .section { padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem); }
+  .section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem; }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 300; line-height: 1.1;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+  .section-link {
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--charcoal); text-decoration: none;
+    border-bottom: 1px solid var(--accent); padding-bottom: 2px;
+    transition: color 0.2s;
+  }
+  .section-link:hover { color: var(--accent); }
+
+  /* ── FILTERS ── */
+  .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+  .filter-btn {
+    background: none; border: 1px solid var(--border);
+    padding: 0.45rem 1.2rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--charcoal); border-color: var(--charcoal); color: white;
+  }
+
+  /* ── PRODUCT GRID ── */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 2rem;
+  }
+  .product-card {
+    background: var(--card-bg); cursor: pointer;
+    transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.35s;
+    animation: fadeUp 0.6s both;
+  }
+  .product-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+  .product-img {
+    width: 100%; aspect-ratio: 3/4; overflow: hidden;
+    position: relative; background: #e8e2d8;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .product-emoji { font-size: 5rem; transition: transform 0.4s ease; }
+  .product-card:hover .product-emoji { transform: scale(1.08); }
+  .product-tag {
+    position: absolute; top: 1rem; left: 1rem;
+    background: var(--accent); color: white;
+    font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 0.3rem 0.6rem;
+  }
+  .product-tag.new-tag { background: var(--charcoal); }
+  .product-actions {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(26,26,26,0.95); color: white;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem; gap: 0.5rem;
+    transform: translateY(100%); transition: transform 0.3s ease;
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .product-card:hover .product-actions { transform: translateY(0); }
+  .product-info { padding: 1.2rem; }
+  .product-cat {
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.4rem;
+  }
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; font-weight: 400; margin-bottom: 0.3rem;
+  }
+  .product-price-row { display: flex; align-items: center; gap: 0.8rem; }
+  .product-price { font-size: 1rem; font-weight: 600; color: var(--charcoal); }
+  .product-old-price { font-size: 0.8rem; color: var(--muted); text-decoration: line-through; }
+  .product-sizes {
+    display: flex; gap: 0.4rem; margin-top: 0.8rem;
+  }
+  .size-chip {
+    font-size: 0.6rem; letter-spacing: 0.05em;
+    border: 1px solid var(--border); padding: 0.2rem 0.5rem;
+    color: var(--muted); cursor: pointer; transition: all 0.15s;
+  }
+  .size-chip:hover { border-color: var(--charcoal); color: var(--charcoal); }
+
+  /* ── BANNER STRIP ── */
+  .banner-strip {
+    background: var(--charcoal); color: var(--cream);
+    padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+    align-items: center; position: relative; overflow: hidden;
+  }
+  .banner-strip::before {
+    content: 'SALE';
+    position: absolute; right: -2rem; top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(6rem, 15vw, 12rem);
+    font-weight: 600; color: rgba(255,255,255,0.04);
+    letter-spacing: 0.2em; white-space: nowrap;
+  }
+  .banner-label {
+    font-size: 0.65rem; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+  }
+  .banner-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 300; line-height: 1.1; margin-bottom: 1.5rem;
+  }
+  .banner-title em { font-style: italic; color: var(--accent); }
+  .discount-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #333; }
+  .discount-item {
+    background: #222; padding: 1.5rem;
+    text-align: center;
+  }
+  .discount-pct {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem; font-weight: 300; color: var(--accent);
+  }
+  .discount-desc { font-size: 0.65rem; color: #888; letter-spacing: 0.1em; margin-top: 0.3rem; }
+
+  /* ── CART DRAWER ── */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 200; opacity: 0; visibility: hidden;
+    transition: all 0.3s;
+  }
+  .overlay.show { opacity: 1; visibility: visible; }
+  .cart-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: min(440px, 100vw);
+    background: var(--white);
+    z-index: 201; transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    display: flex; flex-direction: column;
+  }
+  .cart-drawer.open { transform: translateX(0); }
+  .drawer-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .drawer-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 400;
+  }
+  .drawer-close {
+    background: none; border: none; cursor: pointer;
+    font-size: 1.5rem; color: var(--muted);
+    transition: color 0.2s; line-height: 1;
+  }
+  .drawer-close:hover { color: var(--charcoal); }
+  .cart-items { flex: 1; overflow-y: auto; padding: 1.5rem 2rem; }
+  .cart-empty {
+    text-align: center; padding: 3rem 1rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem; color: var(--muted); font-style: italic;
+  }
+  .cart-item {
+    display: flex; gap: 1rem; padding: 1.2rem 0;
+    border-bottom: 1px solid var(--border); align-items: center;
+    animation: fadeUp 0.3s both;
+  }
+  .ci-img {
+    width: 80px; height: 100px; background: var(--card-bg);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+  }
+  .ci-info { flex: 1; }
+  .ci-cat { font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+  .ci-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; margin: 0.2rem 0; }
+  .ci-size { font-size: 0.65rem; color: var(--muted); }
+  .ci-price { font-weight: 600; font-size: 0.95rem; }
+  .ci-qty { display: flex; align-items: center; gap: 0.8rem; margin-top: 0.6rem; }
+  .qty-btn {
+    background: none; border: 1px solid var(--border);
+    width: 26px; height: 26px; cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; color: var(--charcoal);
+  }
+  .qty-btn:hover { background: var(--charcoal); color: white; border-color: var(--charcoal); }
+  .qty-num { font-size: 0.85rem; font-weight: 500; min-width: 1.5rem; text-align: center; }
+  .ci-remove {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 1.1rem; transition: color 0.2s;
+    align-self: flex-start;
+  }
+  .ci-remove:hover { color: #c0392b; }
+  .drawer-footer { padding: 1.5rem 2rem; border-top: 1px solid var(--border); }
+  .total-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .total-label { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .total-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem; font-weight: 400;
+  }
+  .checkout-btn {
+    width: 100%; background: var(--charcoal); color: white; border: none;
+    padding: 1.1rem; cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    transition: background 0.25s;
+  }
+  .checkout-btn:hover { background: var(--accent); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    z-index: 300; opacity: 0; visibility: hidden;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem; transition: all 0.3s;
+  }
+  .modal-overlay.show { opacity: 1; visibility: visible; }
+  .modal {
+    background: white; max-width: 900px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    animation: modalIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes modalIn { from{transform:scale(0.9);opacity:0} to{transform:scale(1);opacity:1} }
+  .modal-img {
+    background: var(--card-bg); display: flex; align-items: center;
+    justify-content: center; font-size: 8rem; min-height: 400px;
+    position: relative;
+  }
+  .modal-info { padding: 2.5rem; display: flex; flex-direction: column; gap: 1.2rem; }
+  .modal-cat { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); }
+  .modal-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 400; line-height: 1.2; }
+  .modal-price { font-size: 1.5rem; font-weight: 600; }
+  .modal-old-price { font-size: 1rem; color: var(--muted); text-decoration: line-through; }
+  .modal-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.8; }
+  .modal-size-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; }
+  .modal-sizes { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .modal-size-btn {
+    border: 1px solid var(--border); padding: 0.5rem 1rem;
+    background: none; cursor: pointer; font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem; transition: all 0.2s; color: var(--charcoal);
+  }
+  .modal-size-btn.selected { background: var(--charcoal); color: white; border-color: var(--charcoal); }
+  .modal-add-btn {
+    background: var(--accent); color: white; border: none;
+    padding: 1rem; cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    transition: background 0.25s; margin-top: auto;
+  }
+  .modal-add-btn:hover { background: var(--accent-dark); }
+  .modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    background: rgba(0,0,0,0.4); color: white; border: none;
+    width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+    font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+    z-index: 1;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--charcoal); color: white;
+    padding: 0.9rem 1.8rem; font-size: 0.75rem; letter-spacing: 0.08em;
+    z-index: 400; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── FEATURES ── */
+  .features {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0; border-top: 1px solid var(--border);
+  }
+  .feature-item {
+    padding: 2.5rem clamp(1.5rem, 4vw, 3rem);
+    border-right: 1px solid var(--border);
+    display: flex; gap: 1.2rem; align-items: flex-start;
+  }
+  .feature-item:last-child { border-right: none; }
+  .feature-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .feature-title { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 0.3rem; }
+  .feature-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--charcoal); color: #aaa;
+    padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem) 2rem;
+  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+  .footer-brand .logo { color: var(--cream); display: block; margin-bottom: 1rem; }
+  .footer-brand p { font-size: 0.75rem; line-height: 1.8; max-width: 260px; }
+  .footer-col h4 { color: var(--cream); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1.2rem; }
+  .footer-col a { display: block; font-size: 0.75rem; color: #888; text-decoration: none; margin-bottom: 0.6rem; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--accent); }
+  .footer-bottom { border-top: 1px solid #333; padding-top: 2rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .footer-copy { font-size: 0.7rem; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .hero::before { display: none; }
+    .hero { min-height: auto; padding-top: 4rem; }
+    .hero-visual { display: none; }
+    nav { display: none; }
+    .banner-strip { grid-template-columns: 1fr; }
+    .modal { grid-template-columns: 1fr; }
+    .modal-img { min-height: 250px; font-size: 5rem; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .features { grid-template-columns: 1fr 1fr; }
+    .feature-item { border-bottom: 1px solid var(--border); }
+  }
+  @media (max-width: 480px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .features { grid-template-columns: 1fr; }
+    .discount-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader"><span class="loader-text">VOGUE</span></div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+
+<!-- HEADER -->
+<header>
+  <a href="#" class="logo">VOGUE STORE</a>
+  <nav>
+    <a href="#catalog">Каталог</a>
+    <a href="#sale">Распродажа</a>
+    <a href="#about">О нас</a>
+  </nav>
+  <button class="cart-btn" onclick="toggleCart()">
+    <span class="cart-icon">🛍</span>
+    <span class="cart-count" id="cartCount">0</span>
+  </button>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-tag">✦ Новая коллекция 2025</p>
+    <h1>Стиль,<br>который <em>говорит</em><br>за вас</h1>
+    <p>Откройте для себя одежду, созданную для тех, кто ценит качество и неповторимый образ.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="scrollTo('catalog')">Смотреть коллекцию</button>
+      <button class="btn-outline" onclick="scrollTo('sale')">Распродажа</button>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-visual-box">
+      <span class="mannequin">🧥</span>
+      <div class="hero-badge"><strong>−30%</strong>На новинки</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-inner" id="marqueeInner">
+    <span class="marquee-item">Бесплатная доставка от 3000 ₽</span>
+    <span class="marquee-item">Новая коллекция уже в магазине</span>
+    <span class="marquee-item">Возврат в течение 30 дней</span>
+    <span class="marquee-item">Скидка 20% на первый заказ</span>
+    <span class="marquee-item">Бесплатная доставка от 3000 ₽</span>
+    <span class="marquee-item">Новая коллекция уже в магазине</span>
+    <span class="marquee-item">Возврат в течение 30 дней</span>
+    <span class="marquee-item">Скидка 20% на первый заказ</span>
+  </div>
+</div>
+
+<!-- CATALOG -->
+<section class="section" id="catalog">
+  <div class="section-header">
+    <div class="section-title">Наша <em>коллекция</em></div>
+    <a href="#" class="section-link">Все товары →</a>
+  </div>
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterProducts('all', this)">Все</button>
+    <button class="filter-btn" onclick="filterProducts('tops', this)">Верх</button>
+    <button class="filter-btn" onclick="filterProducts('bottoms', this)">Низ</button>
+    <button class="filter-btn" onclick="filterProducts('outerwear', this)">Верхняя одежда</button>
+    <button class="filter-btn" onclick="filterProducts('accessories', this)">Аксессуары</button>
+  </div>
+  <div class="products-grid" id="productsGrid"></div>
+</section>
+
+<!-- SALE BANNER -->
+<section class="banner-strip" id="sale">
+  <div>
+    <p class="banner-label">✦ Специальное предложение</p>
+    <h2 class="banner-title">Большая<br><em>распродажа</em><br>сезона</h2>
+    <button class="btn-primary" onclick="filterProducts('sale', document.querySelector('.filter-btn'))">Смотреть скидки</button>
+  </div>
+  <div class="discount-grid">
+    <div class="discount-item"><div class="discount-pct">−20%</div><div class="discount-desc">На все топы</div></div>
+    <div class="discount-item"><div class="discount-pct">−30%</div><div class="discount-desc">На верхнюю одежду</div></div>
+    <div class="discount-item"><div class="discount-pct">−15%</div><div class="discount-desc">На брюки</div></div>
+    <div class="discount-item"><div class="discount-pct">−40%</div><div class="discount-desc">Прошлые сезоны</div></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div class="features" id="about">
+  <div class="feature-item"><div class="feature-icon">🚚</div><div><div class="feature-title">Быстрая доставка</div><div class="feature-desc">По всей России за 2–5 дней</div></div></div>
+  <div class="feature-item"><div class="feature-icon">↩️</div><div><div class="feature-title">Возврат 30 дней</div><div class="feature-desc">Без вопросов и объяснений</div></div></div>
+  <div class="feature-item"><div class="feature-icon">🔒</div><div><div class="feature-title">Безопасная оплата</div><div class="feature-desc">Карта, СБП, наложенный платёж</div></div></div>
+  <div class="feature-item"><div class="feature-icon">⭐</div><div><div class="feature-title">Гарантия качества</div><div class="feature-desc">Только проверенные материалы</div></div></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="logo">VOGUE STORE</a>
+      <p>Одежда для тех, кто хочет выглядеть безупречно каждый день. Качество и стиль — наши главные ценности.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Магазин</h4>
+      <a href="#">Каталог</a>
+      <a href="#">Новинки</a>
+      <a href="#">Распродажа</a>
+      <a href="#">Бренды</a>
+    </div>
+    <div class="footer-col">
+      <h4>Помощь</h4>
+      <a href="#">Доставка</a>
+      <a href="#">Возврат</a>
+      <a href="#">Размерная сетка</a>
+      <a href="#">Контакты</a>
+    </div>
+    <div class="footer-col">
+      <h4>Компания</h4>
+      <a href="#">О нас</a>
+      <a href="#">Вакансии</a>
+      <a href="#">Пресса</a>
+      <a href="#">Партнёрам</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 VOGUE STORE. Все права защищены.</span>
+    <span class="footer-copy">Политика конфиденциальности · Условия использования</span>
+  </div>
+</footer>
+
+<!-- CART DRAWER -->
+<div class="cart-drawer" id="cartDrawer">
+  <div class="drawer-header">
+    <span class="drawer-title">Корзина</span>
+    <button class="drawer-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">Корзина пуста</div>
+  </div>
+  <div class="drawer-footer" id="drawerFooter" style="display:none">
+    <div class="total-row">
+      <span class="total-label">Итого</span>
+      <span class="total-price" id="totalPrice">0 ₽</span>
+    </div>
+    <button class="checkout-btn" onclick="checkout()">Оформить заказ</button>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-img" id="modalImg">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <span id="modalEmoji" style="font-size:8rem"></span>
+    </div>
+    <div class="modal-info">
+      <p class="modal-cat" id="modalCat"></p>
+      <h2 class="modal-name" id="modalName"></h2>
+      <div style="display:flex;align-items:center;gap:1rem">
+        <span class="modal-price" id="modalPrice"></span>
+        <span class="modal-old-price" id="modalOldPrice"></span>
+      </div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div>
+        <p class="modal-size-label" style="margin-bottom:0.6rem">Размер</p>
+        <div class="modal-sizes" id="modalSizes"></div>
+      </div>
+      <button class="modal-add-btn" onclick="addFromModal()">Добавить в корзину</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── PRODUCTS DATA ──────────────────────────────────────────────
+const products = [
+  { id:1, name:'Шёлковая блуза', category:'tops', cat:'Верх', emoji:'👚', price:4200, oldPrice:5800, sizes:['XS','S','M','L','XL'], desc:'Элегантная блуза из натурального шёлка. Свободный крой подчёркивает женственность.', tag:'sale' },
+  { id:2, name:'Льняные брюки', category:'bottoms', cat:'Низ', emoji:'👖', price:5900, sizes:['XS','S','M','L'], desc:'Прямые брюки из 100% льна. Идеальны для жаркого лета и деловых встреч.', tag:'new' },
+  { id:3, name:'Тренч классический', category:'outerwear', cat:'Верхняя одежда', emoji:'🧥', price:12900, oldPrice:18000, sizes:['S','M','L','XL'], desc:'Классический двубортный тренч бежевого оттенка. Пояс регулируется.', tag:'sale' },
+  { id:4, name:'Кашемировый свитер', category:'tops', cat:'Верх', emoji:'🧶', price:8700, sizes:['S','M','L','XL','XXL'], desc:'100% кашемир высшего сорта. Мягкий, тёплый и невероятно приятный на ощупь.' },
+  { id:5, name:'Шерстяная юбка', category:'bottoms', cat:'Низ', emoji:'👗', price:6400, oldPrice:8000, sizes:['XS','S','M','L'], desc:'Миди-юбка из тонкой шерсти. A-силуэт скрывает недостатки и подчёркивает талию.', tag:'sale' },
+  { id:6, name:'Куртка-косуха', category:'outerwear', cat:'Верхняя одежда', emoji:'🥼', price:15800, sizes:['XS','S','M','L'], desc:'Косуха из натуральной кожи. Классика байкерского стиля с актуальной отделкой.', tag:'new' },
+  { id:7, name:'Кожаный ремень', category:'accessories', cat:'Аксессуары', emoji:'🪢', price:2900, sizes:['S/M','L/XL'], desc:'Ремень из натуральной кожи с матовой фурнитурой. Ширина 3 см.' },
+  { id:8, name:'Шёлковый платок', category:'accessories', cat:'Аксессуары', emoji:'🧣', price:3400, oldPrice:4200, sizes:['Один размер'], desc:'Платок 90×90 см из натурального шёлка с авторским принтом.', tag:'sale' },
+  { id:9, name:'Хлопковая рубашка', category:'tops', cat:'Верх', emoji:'👕', price:3800, sizes:['XS','S','M','L','XL','XXL'], desc:'Базовая рубашка из премиального хлопка. Подходит для любого образа.', tag:'new' },
+  { id:10, name:'Шерстяное пальто', category:'outerwear', cat:'Верхняя одежда', emoji:'🧤', price:21000, oldPrice:28000, sizes:['S','M','L'], desc:'Длинное пальто из итальянской шерсти. Элегантный силуэт, лаконичный крой.', tag:'sale' },
+  { id:11, name:'Джинсы прямые', category:'bottoms', cat:'Низ', emoji:'👖', price:7200, sizes:['26','27','28','29','30','31','32'], desc:'Прямые джинсы из плотного денима. Классический пятикарманный крой.' },
+  { id:12, name:'Кожаная сумка', category:'accessories', cat:'Аксессуары', emoji:'👜', price:14500, sizes:['Один размер'], desc:'Сумка из зернистой кожи с золотой фурнитурой. Вмещает ноутбук 13"', tag:'new' },
+];
+
+let cart = [];
+let currentProduct = null;
+let selectedSize = null;
+
+// ── RENDER PRODUCTS ────────────────────────────────────────────
+function renderProducts(filter = 'all') {
+  const grid = document.getElementById('productsGrid');
+  let filtered = filter === 'all' ? products :
+                 filter === 'sale' ? products.filter(p => p.tag === 'sale') :
+                 products.filter(p => p.category === filter);
+
+  if (!filtered.length) {
+    grid.innerHTML = '<p style="grid-column:1/-1;color:var(--muted);font-style:italic;padding:2rem 0">Товары не найдены</p>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map((p, i) => `
+    <div class="product-card" style="animation-delay:${i * 0.07}s" onclick="openModal(${p.id})">
+      <div class="product-img">
+        <span class="product-emoji">${p.emoji}</span>
+        ${p.tag === 'sale' ? '<span class="product-tag">SALE</span>' : ''}
+        ${p.tag === 'new' ? '<span class="product-tag new-tag">NEW</span>' : ''}
+        <div class="product-actions" onclick="event.stopPropagation(); quickAdd(${p.id})">
+          🛒 Быстро добавить
+        </div>
+      </div>
+      <div class="product-info">
+        <p class="product-cat">${p.cat}</p>
+        <p class="product-name">${p.name}</p>
+        <div class="product-price-row">
+          <span class="product-price">${p.price.toLocaleString('ru')} ₽</span>
+          ${p.oldPrice ? `<span class="product-old-price">${p.oldPrice.toLocaleString('ru')} ₽</span>` : ''}
+        </div>
+        <div class="product-sizes">
+          ${p.sizes.slice(0,4).map(s => `<span class="size-chip">${s}</span>`).join('')}
+          ${p.sizes.length > 4 ? `<span class="size-chip">+${p.sizes.length - 4}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── FILTER ─────────────────────────────────────────────────────
+function filterProducts(filter, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderProducts(filter);
+  document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── MODAL ──────────────────────────────────────────────────────
+function openModal(id) {
+  currentProduct = products.find(p => p.id === id);
+  selectedSize = null;
+  if (!currentProduct) return;
+
+  document.getElementById('modalEmoji').textContent = currentProduct.emoji;
+  document.getElementById('modalCat').textContent = currentProduct.cat;
+  document.getElementById('modalName').textContent = currentProduct.name;
+  document.getElementById('modalPrice').textContent = currentProduct.price.toLocaleString('ru') + ' ₽';
+  document.getElementById('modalOldPrice').textContent = currentProduct.oldPrice ? currentProduct.oldPrice.toLocaleString('ru') + ' ₽' : '';
+  document.getElementById('modalDesc').textContent = currentProduct.desc;
+  document.getElementById('modalSizes').innerHTML = currentProduct.sizes.map(s =>
+    `<button class="modal-size-btn" onclick="selectSize('${s}', this)">${s}</button>`
+  ).join('');
+
+  document.getElementById('modalOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function selectSize(size, btn) {
+  selectedSize = size;
+  document.querySelectorAll('.modal-size-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay') && e.type !== 'click') return;
+  if (e && e.currentTarget === document.getElementById('modal')) return;
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+  currentProduct = null;
+  selectedSize = null;
+}
+
+function addFromModal() {
+  if (!currentProduct) return;
+  if (currentProduct.sizes.length > 1 && !selectedSize) {
+    showToast('Выберите размер');
+    document.getElementById('modalSizes').style.animation = 'none';
+    setTimeout(() => document.getElementById('modalSizes').style.animation = '', 10);
+    return;
+  }
+  addToCart(currentProduct, selectedSize || currentProduct.sizes[0]);
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function quickAdd(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  addToCart(p, p.sizes[0]);
+}
+
+// ── CART ───────────────────────────────────────────────────────
+function addToCart(product, size) {
+  const key = `${product.id}_${size}`;
+  const existing = cart.find(i => i.key === key);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ key, product, size, qty: 1 });
+  }
+  updateCartUI();
+  showToast(`${product.emoji} ${product.name} добавлен в корзину`);
+}
+
+function removeFromCart(key) {
+  cart = cart.filter(i => i.key !== key);
+  updateCartUI();
+}
+
+function changeQty(key, delta) {
+  const item = cart.find(i => i.key === key);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) removeFromCart(key);
+  else updateCartUI();
+}
+
+function updateCartUI() {
+  const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+
+  const countEl = document.getElementById('cartCount');
+  countEl.textContent = count;
+  countEl.classList.toggle('show', count > 0);
+
+  const itemsEl = document.getElementById('cartItems');
+  const footerEl = document.getElementById('drawerFooter');
+
+  if (!cart.length) {
+    itemsEl.innerHTML = '<div class="cart-empty">Корзина пуста</div>';
+    footerEl.style.display = 'none';
+    return;
+  }
+
+  footerEl.style.display = 'block';
+  document.getElementById('totalPrice').textContent = total.toLocaleString('ru') + ' ₽';
+
+  itemsEl.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <div class="ci-img">${item.product.emoji}</div>
+      <div class="ci-info">
+        <p class="ci-cat">${item.product.cat}</p>
+        <p class="ci-name">${item.product.name}</p>
+        <p class="ci-size">Размер: ${item.size}</p>
+        <p class="ci-price">${(item.product.price * item.qty).toLocaleString('ru')} ₽</p>
+        <div class="ci-qty">
+          <button class="qty-btn" onclick="changeQty('${item.key}', -1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${item.key}', 1)">+</button>
+        </div>
+      </div>
+      <button class="ci-remove" onclick="removeFromCart('${item.key}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function toggleCart() {
+  document.getElementById('cartDrawer').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+  document.body.style.overflow = document.getElementById('cartDrawer').classList.contains('open') ? 'hidden' : '';
+}
+
+function closeCart() {
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function checkout() {
+  if (!cart.length) return;
+  showToast('🎉 Заказ оформлен! Менеджер свяжется с вами.');
+  cart = [];
+  updateCartUI();
+  closeCart();
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── HELPERS ────────────────────────────────────────────────────
+function scrollTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    renderProducts();
+  }, 1200);
+});
+
+// Close modal on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModal({});
+    closeCart();
+  }
+});
+
+// Prevent modal close when clicking inside modal content
+document.getElementById('modal').addEventListener('click', e => e.stopPropagation());
+</script>
+</body>
+</html>
